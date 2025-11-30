@@ -1,7 +1,9 @@
 import DecryptedText from './DecryptedText';
 import { motion } from 'motion/react';
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, IdCard } from 'lucide-react';
+import DNIGenerator from './DNIGenerator';
+import { PersonaData } from '@/lib/dniTemplate';
 
 interface DataDisplayProps {
   data: any;
@@ -9,10 +11,42 @@ interface DataDisplayProps {
 
 export default function DataDisplay({ data }: DataDisplayProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [showDNI, setShowDNI] = useState(false);
+  const [personaParaDNI, setPersonaParaDNI] = useState<PersonaData | null>(null);
 
   if (!data || Object.keys(data).length === 0) {
     return null;
   }
+
+  // Función para extraer datos de persona y mostrar generador de DNI
+  const handleGenerarDNI = () => {
+    let persona: PersonaData | null = null;
+
+    // Buscar propietario, inquilino o garante en los datos
+    if (data.propietario) {
+      persona = data.propietario;
+    } else if (data.inquilino) {
+      persona = data.inquilino;
+    } else if (data.garante) {
+      persona = data.garante;
+    } else if (data.persona) {
+      persona = data.persona;
+    }
+
+    if (persona && persona.dni && persona.nombre && persona.apellido) {
+      setPersonaParaDNI(persona);
+      setShowDNI(true);
+    }
+  };
+
+  // Verificar si hay datos de persona disponibles
+  const tienePersona = data.propietario || data.inquilino || data.garante || data.persona;
+  const personaValida = tienePersona && (
+    (data.propietario && data.propietario.dni && data.propietario.nombre) ||
+    (data.inquilino && data.inquilino.dni && data.inquilino.nombre) ||
+    (data.garante && data.garante.dni && data.garante.nombre) ||
+    (data.persona && data.persona.dni && data.persona.nombre)
+  );
 
   const formatValue = (value: any): string => {
     if (value === null || value === undefined) return '';
@@ -48,7 +82,7 @@ export default function DataDisplay({ data }: DataDisplayProps) {
             ease: [0.16, 1, 0.3, 1]
           }}
           style={indentStyle}
-          className="cursor-target mb-4 backdrop-blur-md bg-white/5 rounded-xl p-4 border border-white/10 shadow-sm"
+          className="mb-4 backdrop-blur-md bg-white/5 rounded-xl p-4 border border-white/10 shadow-sm"
         >
           <div className="font-black mb-3 text-xl text-white uppercase tracking-wide border-b border-white/20 pb-2">
             {isFirstLevel ? (
@@ -96,7 +130,7 @@ export default function DataDisplay({ data }: DataDisplayProps) {
         </div>
         <button
           onClick={() => handleCopy(fieldValue, fieldId)}
-          className="cursor-target flex-shrink-0 p-2 backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+          className="flex-shrink-0 p-2 backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
           title="Copiar"
         >
           {isCopied ? (
@@ -117,7 +151,7 @@ export default function DataDisplay({ data }: DataDisplayProps) {
         duration: 0.6,
         ease: [0.16, 1, 0.3, 1]
       }}
-      className="cursor-target mt-8 backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl border border-white/20 p-8 md:p-10"
+      className="mt-8 backdrop-blur-xl bg-white/10 rounded-2xl shadow-2xl border border-white/20 p-8 md:p-10"
     >
       <div className="flex items-center justify-between mb-6 border-b border-white/20 pb-4">
         <motion.h2
@@ -136,23 +170,35 @@ export default function DataDisplay({ data }: DataDisplayProps) {
             encryptedClassName="text-white/30"
           />
         </motion.h2>
-        <button
-          onClick={() => handleCopy(JSON.stringify(data, null, 2), 'all-data')}
-          className="cursor-target flex-shrink-0 ml-4 p-3 backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-200 flex items-center gap-2"
-          title="Copiar todos los datos"
-        >
-          {copiedField === 'all-data' ? (
-            <>
-              <Check className="w-5 h-5 text-green-400" />
-              <span className="text-sm text-green-400 font-semibold">Copiado</span>
-            </>
-          ) : (
-            <>
-              <Copy className="w-5 h-5 text-white/70" />
-              <span className="text-sm text-white/70 font-semibold">Copiar JSON</span>
-            </>
+        <div className="flex items-center gap-3">
+          {personaValida && (
+            <button
+              onClick={handleGenerarDNI}
+              className="flex-shrink-0 p-3 backdrop-blur-md bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 rounded-lg transition-all duration-200 flex items-center gap-2"
+              title="Generar DNI"
+            >
+              <IdCard className="w-5 h-5 text-blue-300" />
+              <span className="text-sm text-blue-300 font-semibold">Generar DNI</span>
+            </button>
           )}
-        </button>
+          <button
+            onClick={() => handleCopy(JSON.stringify(data, null, 2), 'all-data')}
+            className="flex-shrink-0 p-3 backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-200 flex items-center gap-2"
+            title="Copiar todos los datos"
+          >
+            {copiedField === 'all-data' ? (
+              <>
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-sm text-green-400 font-semibold">Copiado</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-5 h-5 text-white/70" />
+                <span className="text-sm text-white/70 font-semibold">Copiar JSON</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
       <motion.div
         initial={{ opacity: 0 }}
@@ -164,6 +210,10 @@ export default function DataDisplay({ data }: DataDisplayProps) {
           renderField(key.charAt(0).toUpperCase() + key.slice(1), value, 0, true, index)
         )}
       </motion.div>
+
+      {showDNI && personaParaDNI && (
+        <DNIGenerator persona={personaParaDNI} />
+      )}
     </motion.div>
   );
 }

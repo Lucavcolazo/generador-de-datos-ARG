@@ -5,10 +5,9 @@ import { generarDatos, TipoGeneracion, obtenerCantidadDNIsUnicos, limpiarDNIsGen
 import DataDisplay from '@/components/DataDisplay';
 import LetterGlitch from '@/components/LetterGlitch';
 import DecryptedText from '@/components/DecryptedText';
-import TargetCursor from '@/components/TargetCursor';
 
 export default function Home() {
-  const [tipoGeneracion, setTipoGeneracion] = useState<TipoGeneracion>('persona-direccion');
+  const [tipoGeneracion, setTipoGeneracion] = useState<TipoGeneracion>('propietario-direccion');
   const [datosGenerados, setDatosGenerados] = useState<any>(null);
   const [cantidadDNIs, setCantidadDNIs] = useState<number>(0);
 
@@ -29,11 +28,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen relative p-6 md:p-8">
-      <TargetCursor
-        spinDuration={2}
-        hideDefaultCursor={true}
-        parallaxOn={true}
-      />
       <LetterGlitch
         glitchSpeed={50}
         centerVignette={true}
@@ -68,15 +62,10 @@ export default function Home() {
               id="tipo-generacion"
               value={tipoGeneracion}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTipoGeneracion(e.target.value as TipoGeneracion)}
-              className="cursor-target w-full p-4 backdrop-blur-md bg-white/20 border-2 border-white/30 text-white font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-white/50 transition-all hover:bg-white/30 rounded-lg [&>option]:bg-gray-900 [&>option]:text-white"
+              className="w-full p-4 backdrop-blur-md bg-white/20 border-2 border-white/30 text-white font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-white/50 transition-all hover:bg-white/30 rounded-lg [&>option]:bg-gray-900 [&>option]:text-white"
             >
               <optgroup label="Direcciones">
                 <option value="solo-direccion">📍 Solo Dirección</option>
-              </optgroup>
-              <optgroup label="Personas">
-                <option value="persona-direccion">👤 Persona + Dirección</option>
-                <option value="persona-garante">👥 Persona + Garante</option>
-                <option value="persona-garante-direcciones">🏠 Persona + Garante + Direcciones de ambos</option>
               </optgroup>
               <optgroup label="Propietarios">
                 <option value="propietario">👔 Propietario</option>
@@ -98,14 +87,14 @@ export default function Home() {
           <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-4">
             <button
               onClick={handleGenerar}
-              className="cursor-target px-12 py-5 backdrop-blur-md bg-white/20 text-white font-black text-xl hover:bg-white/30 transition-all duration-200 border-2 border-white/40 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:translate-y-0 uppercase tracking-wide"
+              className="px-12 py-5 backdrop-blur-md bg-white/20 text-white font-black text-xl hover:bg-white/30 transition-all duration-200 border-2 border-white/40 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:translate-y-0 uppercase tracking-wide"
             >
               Generar Datos
             </button>
             {cantidadDNIs > 0 && (
               <button
                 onClick={handleLimpiarDNIs}
-                className="cursor-target px-6 py-3 backdrop-blur-md bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all duration-200 border border-white/20 rounded-lg"
+                className="px-6 py-3 backdrop-blur-md bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all duration-200 border border-white/20 rounded-lg"
               >
                 Limpiar DNI ({cantidadDNIs})
               </button>

@@ -241,6 +241,29 @@ export function generarEmail(nombre: string, apellido: string): string {
   return `${nombreLimpio}.${apellidoLimpio}${numero ? numero : ''}@${dominio}`;
 }
 
+// Generar número de teléfono argentino (formato: +54 11 XXXX-XXXX o 011 XXXX-XXXX)
+export function generarTelefono(): string {
+  const codigosArea = [
+    '11', '221', '223', '224', '226', '230', '236', '237', '239', '240',
+    '260', '261', '262', '263', '264', '266', '280', '290', '291', '292',
+    '294', '296', '297', '298', '299', '341', '342', '343', '345', '348',
+    '351', '352', '353', '354', '356', '358', '362', '364', '370', '371',
+    '376', '379', '380', '381', '383', '385', '387', '388', '389', '391'
+  ];
+  
+  const codigoArea = randomElement(codigosArea);
+  const numero = randomInt(1000000, 9999999);
+  
+  // Formato: +54 11 XXXX-XXXX o 011 XXXX-XXXX
+  if (codigoArea === '11') {
+    // Buenos Aires puede tener formato con 011
+    const formato = Math.random() < 0.5 ? '+54 11' : '011';
+    return `${formato} ${numero.toString().substring(0, 4)}-${numero.toString().substring(4)}`;
+  } else {
+    return `+54 ${codigoArea} ${numero.toString().substring(0, 4)}-${numero.toString().substring(4)}`;
+  }
+}
+
 // Generar código postal según provincia
 function generarCodigoPostal(provincia: typeof provincias[0]): string {
   return randomInt(provincia.cpInicio, provincia.cpFin).toString();
@@ -289,6 +312,7 @@ export function generarPersona(): {
   apellido: string;
   fechaNacimiento: string;
   email: string;
+  telefono: string;
 } {
   const { nombre, apellido } = generarNombre();
   return {
@@ -296,7 +320,8 @@ export function generarPersona(): {
     nombre,
     apellido,
     fechaNacimiento: generarFechaNacimiento(),
-    email: generarEmail(nombre, apellido)
+    email: generarEmail(nombre, apellido),
+    telefono: generarTelefono()
   };
 }
 
@@ -418,9 +443,6 @@ export function generarPropiedad(): {
 // Tipos para las opciones de generación
 export type TipoGeneracion = 
   | 'solo-direccion'
-  | 'persona-direccion'
-  | 'persona-garante'
-  | 'persona-garante-direcciones'
   | 'propietario'
   | 'propietario-direccion'
   | 'propiedad'
@@ -435,26 +457,6 @@ export function generarDatos(tipo: TipoGeneracion): any {
   switch (tipo) {
     case 'solo-direccion':
       return generarDireccion();
-    
-    case 'persona-direccion':
-      return {
-        persona: generarPersona(),
-        direccion: generarDireccion()
-      };
-    
-    case 'persona-garante':
-      return {
-        persona: generarPersona(),
-        garante: generarPersona()
-      };
-    
-    case 'persona-garante-direcciones':
-      return {
-        persona: generarPersona(),
-        direccionPersona: generarDireccion(),
-        garante: generarPersona(),
-        direccionGarante: generarDireccion()
-      };
     
     case 'propietario':
       return {
